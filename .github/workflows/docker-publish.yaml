@@ -24,7 +24,7 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@main
         with:
-          cosign-release: 'v1.4.1'
+          cosign-release: 'v1.13.1'
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v2
@@ -47,5 +47,10 @@ jobs:
 
       - name: Sign the container image
         run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+
+      - name: Verify signed container image
+        run: cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
         env:
           COSIGN_EXPERIMENTAL: "1"
