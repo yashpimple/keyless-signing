@@ -16,6 +16,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
+      attestations: write
 
     steps:
       - name: Checkout repository
@@ -24,7 +25,7 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@main
         with:
-          cosign-release: 'v1.13.1'
+          cosign-release: 'v2.2.0'
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v2
@@ -44,6 +45,7 @@ jobs:
           context: ./django-keyless-signing
           file: ./django-keyless-signing/Dockerfile
           tags: ghcr.io/${{ github.repository }}:latest
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Sign the container image
         run: |
@@ -52,10 +54,10 @@ jobs:
           cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
         env:
           COSIGN_EXPERIMENTAL: "1"
-          SIGSTORE_TRUST_REPOSITORY: "https://tuf-repo-cdn.sigstore.dev"
-          SIGSTORE_ROOT_FILE: "/dev/null"
 
       - name: Verify signed container image
-        run: cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
+        run: |
+            echo "Verifying signed image: ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}"
+            cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }} --certificate-identity-regexp=".*" --certificate-oidc-issuer-regexp=".*"
         env:
           COSIGN_EXPERIMENTAL: "1"
