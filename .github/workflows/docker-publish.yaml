@@ -21,6 +21,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Debug OIDC token
+        run: |
+          curl -sLS -o /tmp/token.sh https://raw.githubusercontent.com/sigstore/cosign/main/hack/oidc-token.sh
+          bash /tmp/token.sh
+          
       - name: Install cosign
         uses: sigstore/cosign-installer@main
         with:
@@ -46,7 +51,10 @@ jobs:
           tags: ghcr.io/${{ github.repository }}:latest
 
       - name: Sign the container image
-        run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
+        run: |
+          echo "Signing image: ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}"
+          rm -rf ~/.sigstore
+          cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
         env:
           COSIGN_EXPERIMENTAL: "1"
 
