@@ -52,6 +52,8 @@ jobs:
           cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
         env:
           COSIGN_EXPERIMENTAL: "1"
+          SIGSTORE_TRUST_REPOSITORY: "https://tuf-repo-cdn.sigstore.dev"
+          SIGSTORE_ROOT_FILE: "/dev/null"
 
       - name: Verify signed container image
         run: cosign verify ghcr.io/${{ github.repository }}@${{ steps.push-step.outputs.digest }}
