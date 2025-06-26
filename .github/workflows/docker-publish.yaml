@@ -20,11 +20,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Debug OIDC token
-        run: |
-          curl -sLS -o /tmp/token.sh https://raw.githubusercontent.com/sigstore/cosign/main/hack/oidc-token.sh
-          bash /tmp/token.sh
           
       - name: Install cosign
         uses: sigstore/cosign-installer@main
